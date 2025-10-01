@@ -3,25 +3,97 @@
 @tailwind utilities;
 
 
-
-:root {
-  --background: #f0ff1f;
-  --foreground: #171717;
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ===== 디자인 토큰(색/간격) ===== */
+:root{
+  --bg:#f6f7f8;     /* 전체 배경 */
+  --card:#fff;      /* 카드 배경 */
+  --text:#111;      /* 기본 글자색 */
+  --muted:#6b7280;  /* 보조 텍스트 */
+  --line:#e5e7eb;   /* 경계선 */
+  --ring:#111;      /* 버튼/액센트 */
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ===== 리셋 & 기본 타이포 ===== */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto;
+}
+a{text-decoration:none;color:inherit}
+
+/* ===== 공용 레이아웃 ===== */
+.container{max-width:1200px;margin:0 auto;padding:0 16px}
+.main{padding:16px 0}
+
+/* 버튼 스타일(공용) */
+.btn{
+  height:36px;padding:0 14px;border-radius:10px;
+  background:var(--ring);color:#fff;border:none;
+  display:inline-flex;align-items:center;justify-content:center
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ===== 헤더/푸터 ===== */
+.header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line)}
+.header__inner{height:56px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+.logo{font-weight:800}
+.search{flex:1;max-width:640px;height:36px;border:1px solid var(--line);border-radius:12px;padding:0 12px}
+
+.footer{border-top:1px solid var(--line);margin-top:40px;background:#fff}
+.footer__inner{display:flex;align-items:center;justify-content:space-between;padding:24px 0}
+.links{display:flex;gap:16px}
+
+/* ===== 3열 그리드 레이아웃 ===== */
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+/* 모바일 기본: 1열. 순서 재배치로 중앙 콘텐츠 먼저 노출 */
+.left{order:2}.right{order:3}.center{order:1}
+
+/* 데스크톱(≥960px)에서 좌/중앙/우 3열 */
+@media(min-width:960px){
+  .grid{grid-template-columns:220px 1fr 300px}
+  .left{order:1}.center{order:2}.right{order:3;display:block}
 }
+
+/* ===== 사이드바 ===== */
+.sidebar ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px}
+@media(min-width:960px){.sidebar ul{display:block}.sidebar li{margin-bottom:6px}}
+.sidebar a{display:block;padding:10px 12px;border-radius:10px}
+.sidebar a:hover{background:#eee}
+
+/* ===== 우측 카드 & 태그 ===== */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.card__title{font-weight:700;margin-bottom:10px}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:6px 10px;background:#fff}
+
+/* ===== 콘텐츠 카드 그리드 ===== */
+.grid-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:960px){.grid-cards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+.vcard{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:block;
+  transition:transform .12s, box-shadow .12s
+}
+.vcard:hover{transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,.06)}
+
+.vthumb{aspect-ratio:16/9;background:#ddd}
+.vthumb img{width:100%;height:100%;object-fit:cover;display:block}
+
+.vbody{padding:12px}
+.vtitle{
+  font-size:14px;font-weight:700;
+  /* 2줄 말줄임 처리 */
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+}
+.vartist{font-size:12px;color:var(--muted);margin:4px 0 6px}
+.vmeta{font-size:12px;color:var(--muted);display:flex;gap:12px}
+
+/* ===== 상세 페이지 ===== */
+.detail{max-width:720px;margin:0 auto}
+.thumb{aspect-ratio:16/9;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.title{font-size:22px;font-weight:800;margin:14px 0 6px}
+.meta{color:var(--muted);margin:2px 0}
+.empty{padding:40px 0}
