@@ -12,23 +12,23 @@ export default async function TrackPage({ params }) {
   const item = await getTrack(params.id)
   if (!item) return <div className="empty">존재하지 않는 항목입니다.</div>
 
-  // 간단한 상세 화면(썸네일/제목/아티스트/메타/외부 링크)
+  // 상세 페이지: 유튜브 영상만 임베드로 표시
   return (
-    <div className="detail">
-      <div className="thumb">
-        {/* next/image 대신 img 사용(초기 템플릿 단순화) */}
-        <img src={item.thumb} alt={item.title} />
+    <div className="detail" style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}>
+      <div style={{width:'100%',maxWidth:'640px',aspectRatio:'16/9',border:'4px solid #e53e3e',borderRadius:'16px',overflow:'hidden',background:'#000',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <iframe
+          width="100%"
+          height="100%"
+          src={`https://www.youtube.com/embed/${item.youtubeId}`}
+          title={item.title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
       </div>
-
-      <h1 className="title">{item.title}</h1>
+      <h1 className="title" style={{marginTop:'24px'}}>{item.title}</h1>
       <p className="meta">{item.artist}</p>
-
-      <p className="meta">
-        조회수 {item.views.toLocaleString()} · ♥ {item.likes.toLocaleString()}
-      </p>
-
-      {/* 이후 실제 유튜브 URL을 href에 연결 */}
-      <a className="btn" href="#">YouTube에서 듣기</a>
+      <p className="meta">조회수 {item.views.toLocaleString()} · ♥ {item.likes.toLocaleString()}</p>
     </div>
   )
 }
