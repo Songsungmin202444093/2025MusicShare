@@ -4,7 +4,7 @@
 import { useState } from "react"
 
 const menus = [
-  { label: "연예인 · 인플루언서 추천곡" },
+  { label: "유명인 추천 음악" },
   { label: "최신 음악" },
   { label: "인기 음악" },
   { label: "오늘의 음악" },

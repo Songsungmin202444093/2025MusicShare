@@ -8,13 +8,43 @@ export default function AuthPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    name: ''
+    name: '',
+    gender: '',
+    birthdate: '',
+    genre: '',
+    celebrity: ''
   })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // TODO: 실제 인증 로직 구현
-    console.log(isLogin ? '로그인 시도:' : '회원가입 시도:', formData)
+    if (isLogin) {
+      // 로그인 API 호출
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, password: formData.password })
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert('로그인 성공!')
+      } else {
+        alert(data.error || '로그인 실패')
+      }
+    } else {
+      // 회원가입 API 호출
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+      const data = await res.json()
+      if (data.success) {
+        alert('회원가입 성공!')
+        setIsLogin(true)
+      } else {
+        alert(data.error || '회원가입 실패')
+      }
+    }
   }
 
   const handleChange = (e) => {
@@ -34,20 +64,71 @@ export default function AuthPage() {
 
         <form className="auth-form" onSubmit={handleSubmit}>
           {!isLogin && (
-            <div className="form-group">
-              <label htmlFor="name">이름</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="이름을 입력하세요"
-                required={!isLogin}
-              />
-            </div>
+            <>
+              <div className="form-group">
+                <label htmlFor="name">이름</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="이름을 입력하세요"
+                  required={!isLogin}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="gender">성별</label>
+                <select
+                  id="gender"
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  required={!isLogin}
+                >
+                  <option value="">선택</option>
+                  <option value="male">남성</option>
+                  <option value="female">여성</option>
+                  <option value="other">기타</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="birthdate">생년월일</label>
+                <input
+                  type="date"
+                  id="birthdate"
+                  name="birthdate"
+                  value={formData.birthdate}
+                  onChange={handleChange}
+                  required={!isLogin}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="genre">좋아하는 장르</label>
+                <input
+                  type="text"
+                  id="genre"
+                  name="genre"
+                  value={formData.genre}
+                  onChange={handleChange}
+                  placeholder="예: 발라드, 힙합, 락"
+                  required={!isLogin}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="celebrity">좋아하는 인플루언서/연예인</label>
+                <input
+                  type="text"
+                  id="celebrity"
+                  name="celebrity"
+                  value={formData.celebrity}
+                  onChange={handleChange}
+                  placeholder="이름을 입력하세요"
+                  required={!isLogin}
+                />
+              </div>
+            </>
           )}
-
           <div className="form-group">
             <label htmlFor="email">이메일</label>
             <input
@@ -60,7 +141,6 @@ export default function AuthPage() {
               required
             />
           </div>
-
           <div className="form-group">
             <label htmlFor="password">비밀번호</label>
             <input
@@ -73,7 +153,6 @@ export default function AuthPage() {
               required
             />
           </div>
-
           {!isLogin && (
             <div className="form-group">
               <label htmlFor="confirmPassword">비밀번호 확인</label>
@@ -88,7 +167,6 @@ export default function AuthPage() {
               />
             </div>
           )}
-
           <button type="submit" className="auth-submit">
             {isLogin ? '로그인' : '회원가입'}
           </button>
@@ -111,10 +189,14 @@ export default function AuthPage() {
         </div>
 
         <div className="social-auth">
-          <button className="social-btn google">
-            <span>Google로 계속하기</span>
-          </button>
-          <button className="social-btn kakao">
+          <button
+            className="social-btn kakao"
+            type="button"
+            onClick={() => {
+              window.location.href =
+                'https://kauth.kakao.com/oauth/authorize?client_id=YOUR_KAKAO_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&response_type=code';
+            }}
+          >
             <span>카카오로 계속하기</span>
           </button>
         </div>
