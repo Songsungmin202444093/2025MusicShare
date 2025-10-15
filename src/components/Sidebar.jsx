@@ -4,7 +4,7 @@
 import { useState } from "react"
 
 const menus = [
-  { label: "유명인 추천 음악" },
+  { label: "유명인 추천 음악", href: "/celeb" },
   { label: "최신 음악" },
   { label: "인기 음악" },
   { label: "오늘의 음악" },
@@ -47,7 +47,7 @@ export default function Sidebar() {
               </>
             ) : (
               <a
-                href="#"
+                href={menu.href || "#"}
                 style={{
                   display:'flex',alignItems:'center',gap:'10px',padding:'12px 18px',borderRadius:'12px',fontWeight:'600',fontSize:'15px',color:'#222',background:'#fff',border:'1px solid #e5e7eb',boxShadow:'0 1px 4px #e5e7eb44',transition:'all .2s',cursor:'pointer',position:'relative',letterSpacing:'-0.5px'
                 }}
