@@ -1,16 +1,50 @@
-import { NextResponse } from 'next/server';
+// ✅ Node.js 런타임 지정
+export const runtime = 'nodejs'
 
-let users = [];
+// ✅ 필요한 모듈 불러오기
+import { NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import bcrypt from 'bcryptjs'
 
-export async function POST(request) {
-  const body = await request.json();
-  const { email, password } = body;
+// ✅ POST 메서드로 로그인 요청 처리
+export async function POST(req) {
+  try {
+    // 1️⃣ 요청 JSON 데이터 파싱
+    const { email, password } = await req.json()
 
-  const user = users.find(u => u.email === email && u.password === password);
-  if (!user) {
-    return NextResponse.json({ error: '이메일 또는 비밀번호 오류' }, { status: 401 });
+    // 2️⃣ 필수 항목 검증
+    if (!email || !password)
+      return NextResponse.json({ error: 'INVALID' }, { status: 400 })
+
+    // 3️⃣ 해당 이메일의 사용자 조회
+    const [rows] = await db.query(
+      'SELECT id, name, email, password_hash FROM users WHERE email=?',
+      [email]
+    )
+
+    // 4️⃣ 존재하지 않으면 에러 반환
+    if (!rows.length)
+      return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 })
+
+    const user = rows[0]
+
+    // 5️⃣ 입력 비밀번호와 해시된 비밀번호 비교
+    const ok = await bcrypt.compare(password, user.password_hash)
+    if (!ok)
+      return NextResponse.json({ error: 'WRONG_PASSWORD' }, { status: 401 })
+
+    // 6️⃣ 로그인 성공 시 사용자 정보 반환
+    return NextResponse.json({
+      ok: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      }
+    })
+  } catch (err) {
+    // 7️⃣ 예외 처리
+    console.error('로그인 오류:', err)
+    return NextResponse.json({ error: 'SERVER' }, { status: 500 })
   }
-
-  // JWT 토큰 발급은 추후 추가
-  return NextResponse.json({ success: true, user });
 }
