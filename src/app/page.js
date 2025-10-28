@@ -1,14 +1,13 @@
-// 홈 페이지(루트 /). 서버 컴포넌트 기본값이라 데이터 패칭을 직접 await 가능.
+// app/page.js
+// 목적: 더미(data.js) 대신 DB 데이터로 카드 렌더
+export const runtime = 'nodejs'
 import Sidebar from "../components/Sidebar"
 import TagCloud from "../components/TagCloud"
 import FeedGrid from "../components/FeedGrid"
-import { getTracks } from "../lib/data" // 더미 데이터 로더
+import { getTracks } from "../lib/tracks"
 
 export default async function Page() {
-  // 서버에서 더미 데이터를 불러옴(실제 API로 대체 가능)
-  const items = await getTracks()
-
-  // 3열 레이아웃: 좌(사이드바) / 중앙(카드 그리드) / 우(태그 카드)
+  const items = await getTracks() // 서버 컴포넌트라 바로 await 가능
   return (
     <main className="grid">
       <aside className="left"><Sidebar /></aside>
