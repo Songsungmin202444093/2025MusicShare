@@ -222,8 +222,16 @@ export default function AuthPage() {
         {/* ✅ 소셜 로그인 버튼 */}
         <div className="auth-divider"><span>또는</span></div>
         <div className="social-auth">
-          <button className="social-btn google"><span>Google로 계속하기</span></button>
-          <button className="social-btn kakao"><span>카카오로 계속하기</span></button>
+          {/* 카카오 로그인 버튼 */}
+          <button
+            className="social-btn kakao"
+            type="button"
+            onClick={() => {
+              window.location.href = '/api/auth/kakao'
+            }}
+          >
+            <span>카카오로 계속하기</span>
+          </button>
         </div>
       </div>
     </div>
