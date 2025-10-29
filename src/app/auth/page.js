@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 
+// ✅ 회원가입 장르 옵션(체크박스용)
+const GENRES = ['발라드', '힙합', 'POP', '트로트', '댄스']
+
 export default function AuthPage() {
   // ✅ 로그인/회원가입 모드 구분 (true=로그인, false=회원가입)
   const [isLogin, setIsLogin] = useState(true)
@@ -11,7 +14,7 @@ export default function AuthPage() {
     name: '',
     gender: '',
     birthDate: '',
-    favoriteGenres: '',
+    favoriteGenres: [],
     favoriteInfluencer: '',
     email: '',
     password: '',
@@ -25,6 +28,16 @@ export default function AuthPage() {
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((p) => ({ ...p, [name]: value }))
+  }
+
+  // ✅ 장르 체크박스 토글
+  const toggleGenre = (g) => {
+    setFormData((p) => {
+      const set = new Set(p.favoriteGenres)
+      if (set.has(g)) set.delete(g)
+      else set.add(g)
+      return { ...p, favoriteGenres: Array.from(set) }
+    })
   }
 
   // ✅ 로그인 또는 회원가입 버튼 클릭 시 동작
@@ -61,7 +74,8 @@ export default function AuthPage() {
             name: formData.name,
             gender: formData.gender,
             birthDate: formData.birthDate,
-            favoriteGenres: formData.favoriteGenres,
+            // 서버는 문자열 컬럼을 사용하므로 콤마로 직렬화해 전송
+            favoriteGenres: (formData.favoriteGenres || []).join(','),
             favoriteInfluencer: formData.favoriteInfluencer,
             email: formData.email,
             password: formData.password
@@ -131,16 +145,21 @@ export default function AuthPage() {
                 />
               </div>
 
-              {/* 좋아하는 장르 */}
+              {/* 좋아하는 장르(체크박스 - 컴팩트) */}
               <div className="form-group">
-                <label htmlFor="favoriteGenres">좋아하는 장르</label>
-                <input
-                  id="favoriteGenres"
-                  name="favoriteGenres"
-                  value={formData.favoriteGenres}
-                  onChange={handleChange}
-                  placeholder="예: 발라드, 힙합, 락"
-                />
+                <label>좋아하는 장르</label>
+                <div className="checkbox-group">
+                  {GENRES.map((g) => (
+                    <label key={g} className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        checked={formData.favoriteGenres.includes(g)}
+                        onChange={() => toggleGenre(g)}
+                      />
+                      <span>{g}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* 좋아하는 인플루언서 */}
