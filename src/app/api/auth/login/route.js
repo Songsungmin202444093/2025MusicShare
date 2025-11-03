@@ -4,6 +4,7 @@ export const runtime = 'nodejs'
 // ✅ 필요한 모듈 불러오기
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { createSessionToken, setSessionCookieOn } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
 
 // ✅ POST 메서드로 로그인 요청 처리
@@ -33,15 +34,14 @@ export async function POST(req) {
     if (!ok)
       return NextResponse.json({ error: 'WRONG_PASSWORD' }, { status: 401 })
 
-    // 6️⃣ 로그인 성공 시 사용자 정보 반환
-    return NextResponse.json({
+    // 6️⃣ 로그인 성공 시 세션 토큰 발급 및 쿠키 설정
+    const token = createSessionToken({ id: user.id, name: user.name, email: user.email })
+    const res = NextResponse.json({
       ok: true,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email
-      }
+      user: { id: user.id, name: user.name, email: user.email }
     })
+    setSessionCookieOn(res, token)
+    return res
   } catch (err) {
     // 7️⃣ 예외 처리
     console.error('로그인 오류:', err)

@@ -1,15 +1,16 @@
 export const runtime = 'nodejs'
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { createSessionToken, setSessionCookieOn } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
-async function getToken(code) {
+async function getToken(code, redirectUri) {
     const url = 'https://kauth.kakao.com/oauth/token'
     const body = new URLSearchParams({
         grant_type: 'authorization_code',
         client_id: process.env.KAKAO_REST_KEY,
-        redirect_uri: process.env.KAKAO_REDIRECT_URI,
+        redirect_uri: redirectUri,
         code
     })
     if (process.env.KAKAO_CLIENT_SECRET) body.append('client_secret', process.env.KAKAO_CLIENT_SECRET)
@@ -28,10 +29,12 @@ export async function GET(req) {
     const code = new URL(req.url).searchParams.get('code')
     if (!code) return NextResponse.json({ error: 'no code' }, { status: 400 })
 
-    const token = await getToken(code)
+    const origin = new URL(req.url).origin
+    const redirectUri = process.env.KAKAO_REDIRECT_URI || `${origin}/api/auth/kakao/callback`
+    const token = await getToken(code, redirectUri)
     if (token.error) {
         // 토큰 교환 실패 시 인증 페이지로 에러와 함께 리다이렉트
-        const url = new URL('/auth', process.env.KAKAO_REDIRECT_URI || 'http://localhost:3000')
+        const url = new URL('/auth', req.url)
         url.searchParams.set('social', 'kakao')
         url.searchParams.set('error', token.error || 'token_exchange_failed')
         return NextResponse.redirect(url.toString())
@@ -45,7 +48,7 @@ export async function GET(req) {
 
     // 이메일이 없는 경우: 콘솔에서 이메일 동의 항목을 설정했는지 확인 필요
     if (!email) {
-        const url = new URL('/auth', process.env.KAKAO_REDIRECT_URI || 'http://localhost:3000')
+        const url = new URL('/auth', origin)
         url.searchParams.set('social', 'kakao')
         url.searchParams.set('error', 'email_required')
         return NextResponse.redirect(url.toString())
@@ -67,14 +70,17 @@ export async function GET(req) {
             userId = result.insertId
         }
 
-        // NOTE: 세션/JWT 발급은 이후 단계에서 구현 가능. 지금은 돌아갈 위치로 리다이렉트만 수행.
-        const url = new URL('/', process.env.KAKAO_REDIRECT_URI || 'http://localhost:3000')
-        url.searchParams.set('login', 'success')
-        url.searchParams.set('via', 'kakao')
-        return NextResponse.redirect(url.toString())
+        // 세션 토큰 발급 및 쿠키 설정 후 홈으로 이동 (요청 origin 기준으로 절대 URL 생성)
+        const token = createSessionToken({ id: userId, name: nickname, email })
+        const redirectUrl = new URL('/', req.url)
+        redirectUrl.searchParams.set('login', 'success')
+        redirectUrl.searchParams.set('via', 'kakao')
+        const res = NextResponse.redirect(redirectUrl.toString())
+    setSessionCookieOn(res, token)
+    return res
     } catch (err) {
         console.error('Kakao callback DB error:', err)
-        const url = new URL('/auth', process.env.KAKAO_REDIRECT_URI || 'http://localhost:3000')
+        const url = new URL('/auth', req.url)
         url.searchParams.set('social', 'kakao')
         url.searchParams.set('error', 'server')
         return NextResponse.redirect(url.toString())

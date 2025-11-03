@@ -35,11 +35,21 @@ a{text-decoration:none;color:inherit}
   display:inline-flex;align-items:center;justify-content:center
 }
 
+/* 버튼 변형: ghost */
+.btn--ghost{
+  background:#fff;
+  color:var(--ring);
+  border:1px solid var(--line);
+}
+
 /* ===== 헤더/푸터 ===== */
 .header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line)}
 .header__inner{height:56px;display:flex;gap:12px;align-items:center;justify-content:space-between}
 .logo{font-weight:800}
 .search{flex:1;max-width:640px;height:36px;border:1px solid var(--line);border-radius:12px;padding:0 12px}
+
+/* 헤더 우측 계정 영역 간격 */
+.account{display:flex;align-items:center;gap:10px}
 
 .footer{border-top:1px solid var(--line);margin-top:40px;background:#fff}
 .footer__inner{display:flex;align-items:center;justify-content:space-between;padding:24px 0}
@@ -144,7 +154,7 @@ a{text-decoration:none;color:inherit}
 .vtitle{
   font-size:14px;font-weight:700;
   /* 2줄 말줄임 처리 */
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
+  display:-webkit-box;line-clamp:2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden
 }
 .vartist{font-size:12px;color:var(--muted);margin:4px 0 6px}
 .vmeta{font-size:12px;color:var(--muted);display:flex;gap:12px}

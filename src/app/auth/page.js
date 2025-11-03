@@ -1,6 +1,7 @@
 'use client' // ✅ 클라이언트 컴포넌트로 지정 (useState 등 훅 사용 가능)
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 // ✅ 회원가입 장르 옵션(체크박스용)
 const GENRES = ['발라드', '힙합', 'POP', '트로트', '댄스']
@@ -23,6 +24,20 @@ export default function AuthPage() {
 
   // ✅ 처리 결과 메시지 저장
   const [msg, setMsg] = useState('')
+  const searchParams = useSearchParams()
+
+  // 소셜 로그인 리다이렉트 결과 표시
+  useEffect(() => {
+    const social = searchParams.get('social')
+    const error = searchParams.get('error')
+    if (social === 'kakao') {
+      if (error === 'email_required') {
+        setMsg('카카오에서 이메일 제공 동의가 필요합니다. 동의 후 다시 시도해주세요.')
+      } else if (error) {
+        setMsg('카카오 로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
+      }
+    }
+  }, [searchParams])
 
   // ✅ 입력 변화 시 상태 업데이트
   const handleChange = (e) => {
@@ -62,9 +77,11 @@ export default function AuthPage() {
             password: formData.password
           })
         })
-        const j = await r.json()
-        if (!r.ok) throw new Error(j.error || '로그인 실패')
-        setMsg('로그인 성공')
+  const j = await r.json()
+  if (!r.ok) throw new Error(j.error || '로그인 실패')
+  setMsg('로그인 성공')
+  // 로그인 후 홈으로 이동하여 헤더가 갱신되도록 처리
+  window.location.href = '/'
       } else {
         // ✅ 회원가입 요청
         const r = await fetch('/api/auth/register', {
@@ -81,10 +98,10 @@ export default function AuthPage() {
             password: formData.password
           })
         })
-        const j = await r.json()
-        if (!r.ok) throw new Error(j.error || '회원가입 실패')
-        setMsg('회원가입 완료. 이제 로그인하세요.')
-        setIsLogin(true) // 회원가입 후 로그인 화면으로 전환
+  const j = await r.json()
+  if (!r.ok) throw new Error(j.error || '회원가입 실패')
+  // 서버가 세션 쿠키를 이미 설정하므로 홈으로 이동하여 헤더 갱신
+  window.location.href = '/'
       }
     } catch (err) {
       setMsg(err.message) // 에러 메시지 표시

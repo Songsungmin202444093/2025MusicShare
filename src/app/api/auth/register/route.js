@@ -4,6 +4,7 @@ export const runtime = 'nodejs'
 // ✅ 필요한 모듈 불러오기
 import { NextResponse } from 'next/server' // Next.js Response 유틸
 import { db } from '@/lib/db'              // DB 연결 풀 가져오기
+import { createSessionToken, setSessionCookieOn } from '@/lib/auth'
 import bcrypt from 'bcryptjs'              // 비밀번호 암호화 라이브러리
 
 // ✅ POST 메서드로 회원가입 요청 처리
@@ -25,14 +26,18 @@ export async function POST(req) {
         const hash = await bcrypt.hash(password, 10)
 
         // 5️⃣ DB에 회원 데이터 저장
-        await db.query(
+        const [result] = await db.query(
             `INSERT INTO users (name, gender, birth_date, favorite_genres, favorite_influencer, email, password_hash)
             VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [name, gender || null, birthDate || null, favoriteGenres || null, favoriteInfluencer || null, email, hash]
         )
+        const userId = result.insertId
 
-        // 6️⃣ 성공 응답 반환
-        return NextResponse.json({ ok: true })
+        // 6️⃣ 회원가입 즉시 로그인 처리: 세션 토큰 발급 및 쿠키 설정
+        const token = createSessionToken({ id: userId, name, email })
+        const res = NextResponse.json({ ok: true, user: { id: userId, name, email } })
+        setSessionCookieOn(res, token)
+        return res
     } catch (err) {
         // 7️⃣ 예외 발생 시 서버 오류 응답
         console.error('회원가입 오류:', err)

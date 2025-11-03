@@ -2,13 +2,15 @@
 import "./globals.css"
 import Link from "next/link"
 import SearchBar from "../components/SearchBar"
+import { getSession } from "@/lib/auth"
 // import MusicPlayer from "../components/MusicPlayer"
 
 // 페이지 <head> 기본 메타데이터 (제목/설명)
 export const metadata = { title: "MusicShare", description: "Link & Recommend" }
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
   // Next.js가 html/body를 이 컴포넌트에서 렌더링함
+  const session = await getSession()
   return (
     <html lang="ko">
       <body>
@@ -21,8 +23,15 @@ export default function RootLayout({ children }) {
             {/* 검색 입력창 - 실제 검색 기능 구현 */}
             <SearchBar />
 
-            {/* 로그인 버튼으로 변경 */}
-            <Link href="/auth" className="btn">로그인</Link>
+            {/* 우측 계정 영역: 로그인 상태에 따라 분기 */}
+            {session ? (
+              <div className="account">
+                <Link href="/me" className="btn" prefetch={false}>내 정보</Link>
+                <a href="/api/auth/logout" className="btn btn--ghost">로그아웃</a>
+              </div>
+            ) : (
+              <Link href="/auth" className="btn">로그인</Link>
+            )}
           </div>
         </header>
 
