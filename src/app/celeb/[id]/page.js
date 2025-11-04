@@ -24,7 +24,6 @@ const DATA = {
   jk: { name: "정국 (BTS)", cover: "/jk.jpg", list: [] },
 };
 
-// ✅ async 제거 (params 경고 해결)
 export default function CelebDetail({ params }) {
   const item = DATA[params.id];
   if (!item) return <div className="empty">존재하지 않는 페이지입니다.</div>;
@@ -79,8 +78,8 @@ export default function CelebDetail({ params }) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "64px 220px 1fr 260px 200px",
-            gap: 12,
+            gridTemplateColumns: "64px 200px 1fr 260px 200px",
+            gap: 10,
             padding: "10px 16px",
             color: "var(--muted)",
             fontSize: 13,
@@ -102,16 +101,16 @@ export default function CelebDetail({ params }) {
               key={row.no}
               style={{
                 display: "grid",
-                gridTemplateColumns: "64px 220px 1fr 260px 200px",
-                gap: 12,
+                gridTemplateColumns: "64px 200px 1fr 260px 200px",
+                gap: 10,
                 alignItems: "center",
-                padding: "16px 16px",
+                padding: "14px 16px",
                 borderBottom: "1px solid var(--line)",
               }}
             >
               <div style={{ fontWeight: 700 }}>{row.no}</div>
 
-              {/* 썸네일 (테두리/배경 제거) */}
+              {/* 썸네일 크기 축소 */}
               <div style={{ display: "flex", alignItems: "center" }}>
                 {link ? (
                   <a
@@ -120,7 +119,7 @@ export default function CelebDetail({ params }) {
                     rel="noreferrer"
                     style={{
                       display: "inline-block",
-                      borderRadius: 14,
+                      borderRadius: 10,
                       overflow: "hidden",
                     }}
                   >
@@ -128,8 +127,8 @@ export default function CelebDetail({ params }) {
                       src={row.thumb || "/sample1.jpg"}
                       alt=""
                       style={{
-                        width: 180,
-                        height: 180,
+                        width: 130,
+                        height: 130,
                         objectFit: "cover",
                         display: "block",
                       }}
@@ -138,9 +137,9 @@ export default function CelebDetail({ params }) {
                 ) : (
                   <div
                     style={{
-                      width: 180,
-                      height: 180,
-                      borderRadius: 14,
+                      width: 130,
+                      height: 130,
+                      borderRadius: 10,
                       overflow: "hidden",
                     }}
                   >
@@ -157,7 +156,7 @@ export default function CelebDetail({ params }) {
                 )}
               </div>
 
-              <div style={{ color: "#333", lineHeight: 1.7, fontSize: 15 }}>
+              <div style={{ color: "#333", lineHeight: 1.6, fontSize: 15 }}>
                 {row.note}
               </div>
 
