@@ -4,7 +4,8 @@ export const runtime = 'nodejs'
 import { getTrack } from '../../../lib/tracks'
 
 export default async function TrackPage({ params }) {
-  const item = await getTrack(params.id)
+  const { id } = await params
+  const item = await getTrack(id)
   if (!item) return <div className="empty">존재하지 않는 항목입니다.</div>
 
   return (
