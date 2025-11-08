@@ -1,12 +1,11 @@
-import { q } from "@/lib/db";
+// src/app/api/celeb/route.js
+import { q } from "../../../lib/db";
 
 export async function GET() {
-  const rows = await q(
-    `SELECT c.id, c.slug, c.name, c.cover, COUNT(t.id) AS track_count
-     FROM celeb c
-     LEFT JOIN track t ON t.celeb_id = c.id
-     GROUP BY c.id
-     ORDER BY c.name`
-  );
+  const rows = await q(`
+    SELECT id, celeb_name, song_title, artist, comment, source
+    FROM celeb_recommendations
+    ORDER BY celeb_name
+  `);
   return Response.json(rows);
 }

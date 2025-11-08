@@ -1,6 +1,6 @@
 export const runtime = 'nodejs'
 import { redirect } from 'next/navigation'
-import { getSession } from '@/lib/auth'
+import { getSession } from '../../../lib/auth'
 import { db } from '@/lib/db'
 import EditForm from './EditForm'
 

@@ -4,7 +4,7 @@ export const revalidate = 0;
 import "./globals.css";
 import Link from "next/link";
 import SearchBar from "../components/SearchBar";
-import { getSession } from "@/lib/auth";
+import { getSession } from "../lib/auth";
 
 export const metadata = { title: "MusicShare", description: "Link & Recommend" };
 

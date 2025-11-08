@@ -1,6 +1,6 @@
 export const runtime = 'nodejs'
 import { NextResponse } from 'next/server'
-import { clearSessionCookieOn } from '@/lib/auth'
+import { clearSessionCookieOn } from '../../../../lib/auth'
 
 export async function GET(req) {
   try {

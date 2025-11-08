@@ -1,7 +1,7 @@
 export const runtime = 'nodejs'
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getSession, createSessionToken, setSessionCookieOn } from '@/lib/auth'
+import { getSession, createSessionToken, setSessionCookieOn } from '../../../../lib/auth'
 
 export async function GET() {
   const session = await getSession()

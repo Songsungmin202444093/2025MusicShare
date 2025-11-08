@@ -4,7 +4,7 @@ export const runtime = 'nodejs'
 // ✅ 필요한 모듈 불러오기
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { createSessionToken, setSessionCookieOn } from '@/lib/auth'
+import { createSessionToken, setSessionCookieOn } from '../../../../lib/auth'
 import bcrypt from 'bcryptjs'
 
 // ✅ POST 메서드로 로그인 요청 처리
