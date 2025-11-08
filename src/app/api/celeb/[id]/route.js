@@ -27,18 +27,17 @@ export async function GET(_req, context) {
   const tracks = await q(
     `
     SELECT
-      id,
-      celeb_name,
-      song_title,
-      artist,
-      comment AS note,
-      source
+    id,
+    celeb_name,
+    song_title,
+    artist,
+    comment AS note,
+    source,
+    youtube
     FROM celeb_recommendations
     WHERE celeb_name = ?
     ORDER BY id
-    `,
-    [celebName]
-  )
+  `, [celebName])
 
   // 좋아요 (없으면 0)
   const likeRows = await q(

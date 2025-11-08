@@ -5,7 +5,6 @@ import LikeButton from "../../../components/LikeButton.jsx"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-// 절대 URL 생성 (headers()는 await 필요)
 async function abs(path) {
   const h = await headers()
   const proto = h.get("x-forwarded-proto") ?? "http"
@@ -16,6 +15,20 @@ async function abs(path) {
 function coverPath(displayName) {
   return `/celeb/${encodeURIComponent(displayName)}.png`
 }
+
+// YouTube helpers: 썸네일/링크
+function ytId(u = "") {
+  const s = String(u)
+  return (
+    s.match(/v=([^&]+)/)?.[1] ||
+    s.match(/youtu\.be\/([^?]+)/)?.[1] ||
+    s.match(/shorts\/([^?]+)/)?.[1] ||
+    s.match(/embed\/([^?]+)/)?.[1] ||
+    ""
+  )
+}
+const ytThumb = (id) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+const ytWatch = (id) => `https://www.youtube.com/watch?v=${id}`
 
 async function CelebDetailBody({ id }) {
   const url = await abs(`/api/celeb/${id}`)
@@ -65,19 +78,28 @@ async function CelebDetailBody({ id }) {
         <div style={{ borderTop: "1px solid var(--line)" }} />
 
         {tracks.map((row, idx) => {
-          const thumb = row.thumb || profileCover
-          const yt = row.youtube
+          const idY = ytId(row.youtube)
           return (
             <div key={row.id ?? `${id}-${idx}`} style={{ display: "grid", gridTemplateColumns: "64px 200px 1fr 260px 200px", gap: 10, alignItems: "center", padding: "14px 16px", borderBottom: "1px solid var(--line)" }}>
               <div style={{ fontWeight: 700 }}>{idx + 1}</div>
               <div style={{ display: "flex", alignItems: "center" }}>
-                {yt ? (
-                  <a href={yt} target="_blank" rel="noreferrer" style={{ display: "inline-block", borderRadius: 10, overflow: "hidden" }}>
-                    <img src={thumb} alt="" style={{ width: 130, height: 130, objectFit: "cover", display: "block" }} />
+                {row.youtube && idY ? (
+                  <a
+                    href={ytWatch(idY)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: "inline-block", borderRadius: 10, overflow: "hidden" }}
+                    title="유튜브에서 보기"
+                  >
+                    <img
+                      src={ytThumb(idY)}
+                      alt=""
+                      style={{ width: 130, height: 130, objectFit: "cover", display: "block" }}
+                    />
                   </a>
                 ) : (
                   <div style={{ width: 130, height: 130, borderRadius: 10, overflow: "hidden" }}>
-                    <img src={thumb} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <img src={profileCover} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   </div>
                 )}
               </div>
@@ -99,6 +121,6 @@ async function CelebDetailBody({ id }) {
 }
 
 export default async function CelebDetail(props) {
-  const { id } = await props.params            // ✅ params await
+  const { id } = await props.params
   return <CelebDetailBody id={id} />
 }
