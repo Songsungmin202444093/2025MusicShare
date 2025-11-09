@@ -19,6 +19,12 @@ export default async function RootLayout({ children }) {
             <SearchBar />
             {session ? (
               <div className="account">
+                <Link href="/me/posts" className="btn btn--icon" prefetch={false} title="내 게시물">
+                  📋
+                </Link>
+                <Link href="/me/comments" className="btn btn--icon" prefetch={false} title="내 댓글">
+                  💬
+                </Link>
                 <Link href="/me" className="btn" prefetch={false}>내 정보</Link>
                 <a href="/api/auth/logout" className="btn btn--ghost">로그아웃</a>
               </div>
