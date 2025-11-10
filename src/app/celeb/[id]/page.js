@@ -16,15 +16,13 @@ function coverPath(displayName) {
   return `/celeb/${encodeURIComponent(displayName)}.png`
 }
 
-// YouTube helpers: 썸네일/링크
 function ytId(u = "") {
   const s = String(u)
   return (
     s.match(/v=([^&]+)/)?.[1] ||
     s.match(/youtu\.be\/([^?]+)/)?.[1] ||
     s.match(/shorts\/([^?]+)/)?.[1] ||
-    s.match(/embed\/([^?]+)/)?.[1] ||
-    ""
+    s.match(/embed\/([^?]+)/)?.[1] || ""
   )
 }
 const ytThumb = (id) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`
@@ -58,7 +56,7 @@ async function CelebDetailBody({ id }) {
           <div>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
               <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.5px" }}>{displayName}</div>
-              <LikeButton celebId={id} initialLikes={data?.likes ?? 0} />
+              <LikeButton celebId={data?.celeb?.id ?? data?.celeb?.slug ?? data?.celeb?.name ?? id} />
             </div>
             <div style={{ color: "var(--muted)" }}>요즘 듣는 플레이리스트</div>
           </div>
@@ -84,18 +82,8 @@ async function CelebDetailBody({ id }) {
               <div style={{ fontWeight: 700 }}>{idx + 1}</div>
               <div style={{ display: "flex", alignItems: "center" }}>
                 {row.youtube && idY ? (
-                  <a
-                    href={ytWatch(idY)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ display: "inline-block", borderRadius: 10, overflow: "hidden" }}
-                    title="유튜브에서 보기"
-                  >
-                    <img
-                      src={ytThumb(idY)}
-                      alt=""
-                      style={{ width: 130, height: 130, objectFit: "cover", display: "block" }}
-                    />
+                  <a href={ytWatch(idY)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", borderRadius: 10, overflow: "hidden" }} title="유튜브에서 보기">
+                    <img src={ytThumb(idY)} alt="" style={{ width: 130, height: 130, objectFit: "cover", display: "block" }} />
                   </a>
                 ) : (
                   <div style={{ width: 130, height: 130, borderRadius: 10, overflow: "hidden" }}>
