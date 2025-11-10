@@ -34,6 +34,11 @@ export async function POST(request, { params }) {
       liked = true
     }
 
+    // 좋아요 수 수동 업데이트 (트리거가 없을 경우를 위해)
+    const [likeCountResult] = await db.query('SELECT COUNT(*) as count FROM post_likes WHERE post_id=?', [postId])
+    const newLikesCount = likeCountResult[0].count
+    await db.query('UPDATE posts SET likes_count=? WHERE id=?', [newLikesCount, postId])
+
     // 최신 좋아요 수 조회
     const [rows] = await db.query('SELECT likes_count FROM posts WHERE id=?', [postId])
     return NextResponse.json({ ok: true, liked, likesCount: rows[0]?.likes_count ?? 0 })
