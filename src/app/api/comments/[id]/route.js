@@ -13,7 +13,8 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 })
     }
 
-    const commentId = parseInt(params.id)
+    const resolvedParams = await params
+    const commentId = parseInt(resolvedParams.id)
     
     if (!commentId || isNaN(commentId)) {
       return NextResponse.json({ error: 'INVALID_COMMENT_ID' }, { status: 400 })
@@ -83,7 +84,8 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 })
     }
 
-    const commentId = parseInt(params.id)
+    const resolvedParams = await params
+    const commentId = parseInt(resolvedParams.id)
     
     if (!commentId || isNaN(commentId)) {
       return NextResponse.json({ error: 'INVALID_COMMENT_ID' }, { status: 400 })

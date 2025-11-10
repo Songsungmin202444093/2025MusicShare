@@ -7,7 +7,8 @@ import { getSession } from '@/lib/auth'
 
 export async function GET(request, { params }) {
   try {
-    const postId = parseInt(params.id)
+    const resolvedParams = await params
+    const postId = parseInt(resolvedParams.id)
     
     if (!postId || isNaN(postId)) {
       return NextResponse.json({ error: 'INVALID_POST_ID' }, { status: 400 })
@@ -42,7 +43,8 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 })
     }
 
-    const postId = parseInt(params.id)
+    const resolvedParams = await params
+    const postId = parseInt(resolvedParams.id)
     
     if (!postId || isNaN(postId)) {
       return NextResponse.json({ error: 'INVALID_POST_ID' }, { status: 400 })
