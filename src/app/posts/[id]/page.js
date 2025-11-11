@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '../../../components/Sidebar'
 import TagCloud from '../../../components/TagCloud'
@@ -11,7 +11,8 @@ export default function PostDetailPage({ params }) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const router = useRouter()
-  const postId = params.id
+  const resolvedParams = use(params)
+  const postId = resolvedParams.id
 
   useEffect(() => {
     loadCurrentUser()

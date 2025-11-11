@@ -17,7 +17,7 @@ export async function GET(request, { params }) {
     const [posts] = await db.query(`
       SELECT 
         p.id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at,
-        u.name as user_name, u.id as user_id
+        u.name, u.id as user_id
       FROM posts p
       JOIN users u ON p.user_id = u.id
       WHERE p.id = ?
