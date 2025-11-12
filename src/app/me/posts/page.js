@@ -10,6 +10,9 @@ export default function MyPostsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState(null)
+  const [editingId, setEditingId] = useState(null)
+  const [editContent, setEditContent] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -57,6 +60,58 @@ export default function MyPostsPage() {
       setError('게시글을 불러오는데 실패했습니다.')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleEdit = (post) => {
+    setEditingId(post.id)
+    setEditContent(post.content)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingId(null)
+    setEditContent('')
+  }
+
+  const handleSaveEdit = async (postId) => {
+    if (!editContent.trim()) {
+      alert('게시글 내용을 입력해주세요.')
+      return
+    }
+
+    if (editContent.length > 2000) {
+      alert('게시글이 너무 깁니다. (최대 2000자)')
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const response = await fetch(`/api/posts/${postId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: editContent.trim() }),
+        credentials: 'include',
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        // 게시물 목록 업데이트
+        setPosts(posts.map(post => 
+          post.id === postId ? { ...post, content: editContent.trim() } : post
+        ))
+        setEditingId(null)
+        setEditContent('')
+      } else {
+        alert(result.error || '게시글 수정에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('Edit error:', error)
+      alert('게시글 수정에 실패했습니다.')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -171,11 +226,45 @@ export default function MyPostsPage() {
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
                         {/* 게시물 내용 */}
-                        <div className="mb-4">
-                          <p className="text-gray-800 leading-relaxed">
-                            {truncateContent(post.content)}
-                          </p>
-                        </div>
+                        {editingId === post.id ? (
+                          <div className="mb-4">
+                            <textarea
+                              value={editContent}
+                              onChange={(e) => setEditContent(e.target.value)}
+                              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                              rows={6}
+                              placeholder="게시글 내용을 입력하세요..."
+                              maxLength={2000}
+                            />
+                            <div className="flex items-center justify-between mt-2">
+                              <span className="text-sm text-gray-500">
+                                {editContent.length}/2000
+                              </span>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={handleCancelEdit}
+                                  disabled={isSaving}
+                                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 text-sm"
+                                >
+                                  취소
+                                </button>
+                                <button
+                                  onClick={() => handleSaveEdit(post.id)}
+                                  disabled={isSaving || !editContent.trim()}
+                                  className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                                >
+                                  {isSaving ? '저장 중...' : '저장'}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="mb-4">
+                            <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">
+                              {post.content}
+                            </p>
+                          </div>
+                        )}
 
                         {/* 게시물 정보 */}
                         <div className="flex items-center gap-6 text-sm text-gray-500 mb-3">
@@ -195,25 +284,33 @@ export default function MyPostsPage() {
                         </div>
 
                         {/* 액션 버튼들 */}
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => router.push(`/posts/${post.id}`)}
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
-                          >
-                            게시물 보기
-                          </button>
-                          <button
-                            onClick={() => handleDelete(post.id)}
-                            disabled={deletingId === post.id}
-                            className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-                              deletingId === post.id
-                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                : 'bg-red-500 text-white hover:bg-red-600'
-                            }`}
-                          >
-                            {deletingId === post.id ? '삭제 중...' : '삭제'}
-                          </button>
-                        </div>
+                        {editingId !== post.id && (
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => router.push(`/posts/${post.id}`)}
+                              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                            >
+                              게시물 보기
+                            </button>
+                            <button
+                              onClick={() => handleEdit(post)}
+                              className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm"
+                            >
+                              수정
+                            </button>
+                            <button
+                              onClick={() => handleDelete(post.id)}
+                              disabled={deletingId === post.id}
+                              className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+                                deletingId === post.id
+                                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  : 'bg-red-500 text-white hover:bg-red-600'
+                              }`}
+                            >
+                              {deletingId === post.id ? '삭제 중...' : '삭제'}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
