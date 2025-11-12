@@ -99,6 +99,11 @@ export async function POST(request, { params }) {
       VALUES (?, ?, ?)
     `, [postId, session.id, content.trim()])
 
+    // 댓글 수 수동 업데이트
+    const [commentCountResult] = await db.query('SELECT COUNT(*) as count FROM post_comments WHERE post_id=?', [postId])
+    const newCommentsCount = commentCountResult[0].count
+    await db.query('UPDATE posts SET comments_count=? WHERE id=?', [newCommentsCount, postId])
+
     // 생성된 댓글 정보 조회 (사용자 정보 포함)
     const [newComment] = await db.query(`
       SELECT 
@@ -114,7 +119,8 @@ export async function POST(request, { params }) {
 
     return NextResponse.json({
       ok: true,
-      comment: newComment[0]
+      comment: newComment[0],
+      commentsCount: newCommentsCount
     }, { status: 201 })
 
   } catch (error) {

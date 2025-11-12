@@ -35,6 +35,73 @@ export async function GET(request, { params }) {
   }
 }
 
+// 게시글 수정
+export async function PUT(request, { params }) {
+  try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 })
+    }
+
+    const resolvedParams = await params
+    const postId = parseInt(resolvedParams.id)
+    
+    if (!postId || isNaN(postId)) {
+      return NextResponse.json({ error: 'INVALID_POST_ID' }, { status: 400 })
+    }
+
+    const { content } = await request.json()
+
+    // 입력 검증
+    if (!content || typeof content !== 'string' || content.trim().length === 0) {
+      return NextResponse.json({ error: 'CONTENT_REQUIRED' }, { status: 400 })
+    }
+
+    if (content.length > 2000) {
+      return NextResponse.json({ error: 'CONTENT_TOO_LONG' }, { status: 400 })
+    }
+
+    // 게시글 존재 및 소유권 확인
+    const [posts] = await db.query(
+      'SELECT user_id FROM posts WHERE id = ?',
+      [postId]
+    )
+    
+    if (posts.length === 0) {
+      return NextResponse.json({ error: 'POST_NOT_FOUND' }, { status: 404 })
+    }
+
+    if (posts[0].user_id !== session.id) {
+      return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 })
+    }
+
+    // 게시글 수정
+    await db.query(
+      'UPDATE posts SET content = ?, updated_at = NOW() WHERE id = ?',
+      [content.trim(), postId]
+    )
+
+    // 수정된 게시글 정보 조회
+    const [updatedPost] = await db.query(`
+      SELECT 
+        p.id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at, p.updated_at,
+        u.name, u.id as user_id
+      FROM posts p
+      JOIN users u ON p.user_id = u.id
+      WHERE p.id = ?
+    `, [postId])
+
+    return NextResponse.json({
+      ok: true,
+      post: updatedPost[0]
+    })
+
+  } catch (error) {
+    console.error('Post update error:', error)
+    return NextResponse.json({ error: 'SERVER_ERROR' }, { status: 500 })
+  }
+}
+
 // 게시글 삭제
 export async function DELETE(request, { params }) {
   try {

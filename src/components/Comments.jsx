@@ -69,14 +69,18 @@ export default function Comments({ postId, currentUser, commentsCount, onComment
       })
 
       const result = await response.json()
+      console.log('댓글 작성 API 응답:', result)
 
       if (response.ok) {
+        // 댓글 목록에 새 댓글 추가
         setComments([...comments, result.comment])
         setNewComment('')
         
         // 부모 컴포넌트에 댓글 수 업데이트 알림
         if (onCommentsUpdate) {
-          onCommentsUpdate(comments.length + 1)
+          const newCount = result.commentsCount !== undefined ? result.commentsCount : comments.length + 1
+          console.log('댓글 카운트 업데이트:', newCount)
+          onCommentsUpdate(newCount)
         }
       } else {
         setError(result.error || '댓글 작성에 실패했습니다.')
@@ -137,15 +141,16 @@ export default function Comments({ postId, currentUser, commentsCount, onComment
         credentials: 'include',
       })
 
+      const result = await response.json()
+
       if (response.ok) {
         setComments(comments.filter(comment => comment.id !== commentId))
         
         // 부모 컴포넌트에 댓글 수 업데이트 알림
-        if (onCommentsUpdate) {
-          onCommentsUpdate(comments.length - 1)
+        if (onCommentsUpdate && result.commentsCount !== undefined) {
+          onCommentsUpdate(result.commentsCount)
         }
       } else {
-        const result = await response.json()
         setError(result.error || '댓글 삭제에 실패했습니다.')
       }
     } catch (error) {

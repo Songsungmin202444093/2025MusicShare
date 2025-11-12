@@ -93,7 +93,7 @@ export async function DELETE(request, { params }) {
 
     // 댓글 존재 및 소유권 확인
     const [comments] = await db.query(
-      'SELECT user_id FROM post_comments WHERE id = ?',
+      'SELECT user_id, post_id FROM post_comments WHERE id = ?',
       [commentId]
     )
     
@@ -105,10 +105,17 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 })
     }
 
+    const postId = comments[0].post_id
+
     // 댓글 삭제
     await db.query('DELETE FROM post_comments WHERE id = ?', [commentId])
 
-    return NextResponse.json({ ok: true })
+    // 댓글 수 수동 업데이트
+    const [commentCountResult] = await db.query('SELECT COUNT(*) as count FROM post_comments WHERE post_id=?', [postId])
+    const newCommentsCount = commentCountResult[0].count
+    await db.query('UPDATE posts SET comments_count=? WHERE id=?', [newCommentsCount, postId])
+
+    return NextResponse.json({ ok: true, commentsCount: newCommentsCount })
 
   } catch (error) {
     console.error('Comment deletion error:', error)
