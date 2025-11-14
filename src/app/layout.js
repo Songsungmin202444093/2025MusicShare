@@ -25,6 +25,9 @@ export default async function RootLayout({ children }) {
                 <Link href="/me/comments" className="btn btn--icon" prefetch={false} title="내 댓글">
                   💬
                 </Link>
+                <Link href="/celeb/favorites" className="btn btn--icon" prefetch={false} title="즐겨찾기한 유명인">
+                  ❤️
+                </Link>
                 <Link href="/me" className="btn" prefetch={false}>내 정보</Link>
                 <a href="/api/auth/logout" className="btn btn--ghost">로그아웃</a>
               </div>
