@@ -271,14 +271,24 @@ export default function PostCard({ post, currentUser, onUpdate, onDelete }) {
           </div>
         </div>
       ) : (
-        <div 
-          className="mb-4 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" 
-          onClick={() => router.push(`/posts/${post.id}`)}
-          title="게시물 상세 보기"
-        >
-          <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
-            {post.content}
-          </p>
+        <div className="mb-4">
+          <div 
+            className="cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" 
+            onClick={() => router.push(`/posts/${post.id}`)}
+            title="게시물 상세 보기"
+          >
+            <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+              {post.content}
+            </p>
+          </div>
+          
+          {/* YouTube 영상 임베드 */}
+          {post.youtube_embed && (
+            <div 
+              className="mt-4 rounded-lg overflow-hidden"
+              dangerouslySetInnerHTML={{ __html: post.youtube_embed }}
+            />
+          )}
         </div>
       )}
 

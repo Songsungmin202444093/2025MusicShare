@@ -15,7 +15,7 @@ export async function GET(request) {
 
     const [posts] = await db.query(`
       SELECT 
-        p.id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at,
+        p.id, p.content, p.image_url, p.youtube_embed, p.likes_count, p.comments_count, p.created_at,
         u.name, u.id as user_id
       FROM posts p
       JOIN users u ON p.user_id = u.id
@@ -41,7 +41,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 })
     }
 
-    const { content, imageUrl } = await request.json()
+    const { content, imageUrl, youtube_embed } = await request.json()
     
     if (!content || content.trim().length === 0) {
       return NextResponse.json({ error: 'CONTENT_REQUIRED' }, { status: 400 })
@@ -52,14 +52,14 @@ export async function POST(request) {
     }
 
     const [result] = await db.query(`
-      INSERT INTO posts (user_id, content, image_url)
-      VALUES (?, ?, ?)
-    `, [session.id, content.trim(), imageUrl || null])
+      INSERT INTO posts (user_id, content, image_url, youtube_embed)
+      VALUES (?, ?, ?, ?)
+    `, [session.id, content.trim(), imageUrl || null, youtube_embed || null])
 
     // 생성된 게시글 정보 조회
     const [posts] = await db.query(`
       SELECT 
-        p.id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at,
+        p.id, p.content, p.image_url, p.youtube_embed, p.likes_count, p.comments_count, p.created_at,
         u.name as user_name, u.id as user_id
       FROM posts p
       JOIN users u ON p.user_id = u.id
