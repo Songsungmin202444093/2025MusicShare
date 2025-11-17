@@ -284,10 +284,17 @@ export default function PostCard({ post, currentUser, onUpdate, onDelete }) {
           
           {/* YouTube 영상 임베드 */}
           {post.youtube_embed && (
-            <div 
-              className="mt-4 rounded-lg overflow-hidden"
-              dangerouslySetInnerHTML={{ __html: post.youtube_embed }}
-            />
+            <div className="mt-4 rounded-lg overflow-hidden relative" style={{ paddingBottom: '56.25%', height: 0 }}>
+              <div 
+                className="absolute top-0 left-0 w-full h-full"
+                dangerouslySetInnerHTML={{ 
+                  __html: post.youtube_embed.replace(
+                    /<iframe/g, 
+                    '<iframe style="position:absolute;top:0;left:0;width:100%;height:100%"'
+                  )
+                }}
+              />
+            </div>
           )}
         </div>
       )}
