@@ -16,7 +16,7 @@ export async function GET(request, { params }) {
 
     const [posts] = await db.query(`
       SELECT 
-        p.id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at,
+        p.id, p.content, p.image_url, p.youtube_embed, p.likes_count, p.comments_count, p.created_at,
         u.name, u.id as user_id
       FROM posts p
       JOIN users u ON p.user_id = u.id
@@ -50,7 +50,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: 'INVALID_POST_ID' }, { status: 400 })
     }
 
-    const { content } = await request.json()
+    const { content, youtube_embed } = await request.json()
 
     // 입력 검증
     if (!content || typeof content !== 'string' || content.trim().length === 0) {
@@ -77,14 +77,14 @@ export async function PUT(request, { params }) {
 
     // 게시글 수정
     await db.query(
-      'UPDATE posts SET content = ?, updated_at = NOW() WHERE id = ?',
-      [content.trim(), postId]
+      'UPDATE posts SET content = ?, youtube_embed = ?, updated_at = NOW() WHERE id = ?',
+      [content.trim(), youtube_embed || null, postId]
     )
 
     // 수정된 게시글 정보 조회
     const [updatedPost] = await db.query(`
       SELECT 
-        p.id, p.content, p.image_url, p.likes_count, p.comments_count, p.created_at, p.updated_at,
+        p.id, p.content, p.image_url, p.youtube_embed, p.likes_count, p.comments_count, p.created_at, p.updated_at,
         u.name, u.id as user_id
       FROM posts p
       JOIN users u ON p.user_id = u.id

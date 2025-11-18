@@ -14,6 +14,8 @@ export default function PostCard({ post, currentUser, onUpdate, onDelete }) {
   const [isDeleting, setIsDeleting] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState(post.content || '')
+  const [editYoutubeEmbed, setEditYoutubeEmbed] = useState(post.youtube_embed || '')
+  const [showEditYoutube, setShowEditYoutube] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const router = useRouter()
 
@@ -85,11 +87,15 @@ export default function PostCard({ post, currentUser, onUpdate, onDelete }) {
   const handleEdit = () => {
     setIsEditing(true)
     setEditContent(post.content || '')
+    setEditYoutubeEmbed(post.youtube_embed || '')
+    setShowEditYoutube(!!post.youtube_embed)
   }
 
   const handleCancelEdit = () => {
     setIsEditing(false)
     setEditContent(post.content || '')
+    setEditYoutubeEmbed(post.youtube_embed || '')
+    setShowEditYoutube(false)
   }
 
   const handleSaveEdit = async () => {
@@ -110,7 +116,10 @@ export default function PostCard({ post, currentUser, onUpdate, onDelete }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ content: editContent.trim() }),
+        body: JSON.stringify({ 
+          content: editContent.trim(),
+          youtube_embed: editYoutubeEmbed.trim() || null
+        }),
         credentials: 'include',
       })
 
@@ -118,9 +127,13 @@ export default function PostCard({ post, currentUser, onUpdate, onDelete }) {
 
       if (response.ok) {
         setIsEditing(false)
+        setShowEditYoutube(false)
         // 부모 컴포넌트에 업데이트 알림
         if (onUpdate) {
-          onUpdate(post.id, { content: editContent.trim() })
+          onUpdate(post.id, { 
+            content: editContent.trim(),
+            youtube_embed: editYoutubeEmbed.trim() || null
+          })
         }
       } else {
         alert(result.error || '게시글 수정에 실패했습니다.')
@@ -248,26 +261,58 @@ export default function PostCard({ post, currentUser, onUpdate, onDelete }) {
             placeholder="게시글 내용을 입력하세요..."
             maxLength={2000}
           />
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-sm text-gray-500">
-              {editContent.length}/2000
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={handleCancelEdit}
-                disabled={isSaving}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
-              >
-                취소
-              </button>
-              <button
-                onClick={handleSaveEdit}
-                disabled={isSaving || !editContent.trim()}
-                className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSaving ? '저장 중...' : '저장'}
-              </button>
+          <div className="text-right text-sm text-gray-500 mt-1 mb-3">
+            {editContent.length}/2000
+          </div>
+
+          {/* YouTube 소스 코드 수정 영역 */}
+          <div className="mb-3">
+            <button
+              type="button"
+              onClick={() => setShowEditYoutube(!showEditYoutube)}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                showEditYoutube
+                  ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {showEditYoutube ? '🎬 영상 제거' : '🎬 영상 추가/수정'}
+            </button>
+          </div>
+
+          {showEditYoutube && (
+            <div className="mb-3 p-4 border border-gray-300 rounded-lg bg-gray-50">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                YouTube 소스 코드
+              </label>
+              <textarea
+                value={editYoutubeEmbed}
+                onChange={(e) => setEditYoutubeEmbed(e.target.value)}
+                placeholder='<iframe width="560" height="315" src="https://www.youtube.com/embed/..." ...></iframe>'
+                className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                rows={3}
+              />
+              <div className="mt-2 text-xs text-gray-500">
+                💡 YouTube 영상 → 마우스 우클릭 → 소스 코드 복사 (비우면 영상만 삭제됩니다)
+              </div>
             </div>
+          )}
+
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={handleCancelEdit}
+              disabled={isSaving}
+              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+            >
+              취소
+            </button>
+            <button
+              onClick={handleSaveEdit}
+              disabled={isSaving || !editContent.trim()}
+              className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? '저장 중...' : '저장'}
+            </button>
           </div>
         </div>
       ) : (
