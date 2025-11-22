@@ -1,10 +1,12 @@
 // src/app/celeb/[id]/page.js
 import { headers } from "next/headers"
 import LikeButton from "../../../components/LikeButton.jsx"
+import Link from "next/link"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
+// URL absolute resolver
 async function abs(path) {
   const h = await headers()
   const proto = h.get("x-forwarded-proto") ?? "http"
@@ -25,8 +27,8 @@ function ytId(u = "") {
     s.match(/embed\/([^?]+)/)?.[1] || ""
   )
 }
+
 const ytThumb = (id) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`
-const ytWatch = (id) => `https://www.youtube.com/watch?v=${id}`
 
 async function CelebDetailBody({ id }) {
   const url = await abs(`/api/celeb/${id}`)
@@ -48,14 +50,31 @@ async function CelebDetailBody({ id }) {
 
   return (
     <div className="container" style={{ padding: "14px 0" }}>
+      {/* 프로필 영역 */}
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16, padding: 16, background: "linear-gradient(90deg,#f7f3f6,#eef1f7)" }}>
-          <div style={{ width: 72, height: 72, borderRadius: 14, overflow: "hidden", border: "1px solid var(--line)" }}>
-            <img src={profileCover} alt={displayName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          padding: 16,
+          background: "linear-gradient(90deg,#f7f3f6,#eef1f7)"
+        }}>
+          <div style={{
+            width: 72,
+            height: 72,
+            borderRadius: 14,
+            overflow: "hidden",
+            border: "1px solid var(--line)"
+          }}>
+            <img src={profileCover} alt={displayName}
+                 style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
+
           <div>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.5px" }}>{displayName}</div>
+              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.5px" }}>
+                {displayName}
+              </div>
               <LikeButton celebId={data?.celeb?.id ?? data?.celeb?.slug ?? data?.celeb?.name ?? id} />
             </div>
             <div style={{ color: "var(--muted)" }}>요즘 듣는 플레이리스트</div>
@@ -63,39 +82,93 @@ async function CelebDetailBody({ id }) {
         </div>
       </div>
 
+      {/* 추천곡 테이블 */}
       <div className="card" style={{ marginTop: 12, padding: 0 }}>
-        <div className="card__title" style={{ padding: "12px 16px", borderBottom: "1px solid var(--line)" }}>추천곡</div>
+        <div className="card__title"
+             style={{ padding: "12px 16px", borderBottom: "1px solid var(--line)" }}>
+          추천곡
+        </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "64px 200px 1fr 260px 200px", gap: 10, padding: "10px 16px", color: "var(--muted)", fontSize: 13 }}>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "64px 200px 1fr 260px 200px",
+          gap: 10,
+          padding: "10px 16px",
+          color: "var(--muted)",
+          fontSize: 13
+        }}>
           <div>번호</div>
           <div>곡정보</div>
           <div>언급 내용</div>
           <div style={{ textAlign: "left" }}>아티스트 · 앨범</div>
           <div>출처</div>
         </div>
+
         <div style={{ borderTop: "1px solid var(--line)" }} />
 
+        {/* 리스트 반복 */}
         {tracks.map((row, idx) => {
           const idY = ytId(row.youtube)
+
           return (
-            <div key={row.id ?? `${id}-${idx}`} style={{ display: "grid", gridTemplateColumns: "64px 200px 1fr 260px 200px", gap: 10, alignItems: "center", padding: "14px 16px", borderBottom: "1px solid var(--line)" }}>
+            <div
+              key={row.id ?? `${id}-${idx}`}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "64px 200px 1fr 260px 200px",
+                gap: 10,
+                alignItems: "center",
+                padding: "14px 16px",
+                borderBottom: "1px solid var(--line)"
+              }}
+            >
               <div style={{ fontWeight: 700 }}>{idx + 1}</div>
+
+              {/* ▶▶ 내부 상세 페이지로 이동하도록 수정된 부분 */}
               <div style={{ display: "flex", alignItems: "center" }}>
                 {row.youtube && idY ? (
-                  <a href={ytWatch(idY)} target="_blank" rel="noopener noreferrer" style={{ display: "inline-block", borderRadius: 10, overflow: "hidden" }} title="유튜브에서 보기">
-                    <img src={ytThumb(idY)} alt="" style={{ width: 130, height: 130, objectFit: "cover", display: "block" }} />
-                  </a>
+                  <Link
+                    href={`/celeb/${encodeURIComponent(displayName)}/tracks/${row.id}`}
+                    style={{ display: "inline-block", borderRadius: 10, overflow: "hidden" }}
+                    title="상세 보기"
+                  >
+                    <img
+                      src={ytThumb(idY)}
+                      alt=""
+                      style={{ width: 130, height: 130, objectFit: "cover", display: "block" }}
+                    />
+                  </Link>
                 ) : (
-                  <div style={{ width: 130, height: 130, borderRadius: 10, overflow: "hidden" }}>
-                    <img src={profileCover} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <div style={{
+                    width: 130,
+                    height: 130,
+                    borderRadius: 10,
+                    overflow: "hidden"
+                  }}>
+                    <img
+                      src={profileCover}
+                      alt=""
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
                   </div>
                 )}
               </div>
-              <div style={{ color: "#333", lineHeight: 1.6, fontSize: 15 }}>{row.note ?? row.comment}</div>
-              <div style={{ color: "var(--muted)", fontSize: 15, whiteSpace: "nowrap" }}>
+
+              <div style={{ color: "#333", lineHeight: 1.6, fontSize: 15 }}>
+                {row.note ?? row.comment}
+              </div>
+
+              <div style={{
+                color: "var(--muted)",
+                fontSize: 15,
+                whiteSpace: "nowrap"
+              }}>
                 {(row.artist ?? "") + (row.album ? ` · ${row.album}` : "")}
               </div>
-              <div style={{ color: "var(--muted)", fontSize: 15 }}>{row.source}</div>
+
+              <div style={{ color: "var(--muted)", fontSize: 15 }}>
+                {row.source}
+              </div>
             </div>
           )
         })}
