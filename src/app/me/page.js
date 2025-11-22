@@ -40,7 +40,7 @@ export default async function MePage() {
     <div className="card" style={{ maxWidth: 560, margin: '0 auto' }}>
       <div className="card__title">내 정보</div>
 
-      <div className="form-group"><label>이름</label><div>{user.name}</div></div>
+      <div className="form-group"><label>닉네임</label><div>{user.name}</div></div>
       <div className="form-group"><label>이메일</label><div>{user.email}</div></div>
       <div className="form-group"><label>성별</label><div>{user.gender || '-'}</div></div>
       <div className="form-group"><label>생년월일</label><div>{formatDate(user.birthDate) || '-'}</div></div>

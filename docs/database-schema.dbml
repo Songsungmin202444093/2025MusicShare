@@ -1,0 +1,156 @@
+Table "사용자" as users {
+  id int [pk, increment]
+  email varchar(100) [not null, unique]
+  password varchar(255) [not null]
+  name varchar(50) [not null]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    email
+  }
+}
+
+Table "게시글" as posts {
+  id int [pk, increment]
+  user_id int [not null]
+  content text
+  image_url varchar(500)
+  youtube_embed text
+  likes_count int [default: 0]
+  comments_count int [default: 0]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    user_id
+    created_at
+  }
+}
+
+Table "게시글_좋아요" as post_likes {
+  id int [pk, increment]
+  post_id int [not null]
+  user_id int [not null]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    (post_id, user_id) [unique]
+    post_id
+    user_id
+  }
+}
+
+Table "게시글_댓글" as post_comments {
+  id int [pk, increment]
+  post_id int [not null]
+  user_id int [not null]
+  content text [not null]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    post_id
+    user_id
+  }
+}
+
+Table "셀럽" as celeb {
+  id int [pk, increment]
+  slug varchar(50) [not null, unique]
+  name varchar(100) [not null]
+  cover varchar(255)
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    slug [unique]
+  }
+}
+
+Table "셀럽_좋아요_사용자" as celeb_like_users {
+  id int [pk, increment]
+  user_id int [not null]
+  celeb_id int [not null]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    (user_id, celeb_id) [unique]
+    celeb_id
+  }
+}
+
+Table "셀럽_좋아요_통계" as celeb_likes {
+  celeb_name varchar(50) [pk]
+  likes int [default: 0]
+}
+
+Table "셀럽_추천곡" as celeb_recommendations {
+  id int [pk, increment]
+  celeb_name varchar(50)
+  song_title varchar(100)
+  artist varchar(100)
+  comment text
+  source varchar(100)
+  youtube varchar(255)
+}
+
+Table "셀럽별_트랙" as track {
+  id int [pk, increment]
+  celeb_id int [not null]
+  title varchar(200) [not null]
+  artist varchar(120) [not null]
+  album varchar(200)
+  note text
+  source varchar(200)
+  youtube varchar(300)
+  thumb varchar(300)
+  likes int [default: 0]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    celeb_id
+  }
+}
+
+Table "트랙" as tracks {
+  id int [pk, increment]
+  title varchar(120) [not null]
+  artist varchar(80) [not null]
+  views int [default: 0]
+  likes int [default: 0]
+  youtubeId varchar(64) [not null]
+  thumb varchar(255) [not null]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "트랙_좋아요" as track_likes {
+  id int [pk, increment]
+  user_id int [not null]
+  track_id int [not null]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    (user_id, track_id) [unique]
+    track_id
+  }
+}
+
+Table "트랙_태그" as track_tags {
+  id int [pk, increment]
+  track_id int [not null]
+  tag varchar(40) [not null]
+  
+  indexes {
+    track_id
+  }
+}
+
+Ref: posts.user_id - users.id
+Ref: post_likes.post_id - posts.id
+Ref: post_likes.user_id - users.id
+Ref: post_comments.post_id - posts.id
+Ref: post_comments.user_id - users.id
+Ref: celeb_like_users.user_id - users.id
+Ref: celeb_like_users.celeb_id - celeb.id
+Ref: track.celeb_id - celeb.id
+Ref: track_likes.user_id - users.id
+Ref: track_likes.track_id - tracks.id
+Ref: track_tags.track_id - tracks.id

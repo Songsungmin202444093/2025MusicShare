@@ -75,7 +75,7 @@ export default function EditForm({ initial }) {
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
       <div className="form-group">
-        <label>이름</label>
+        <label>닉네임</label>
         <input value={form.name} onChange={e => setField('name', e.target.value)} required />
       </div>
 

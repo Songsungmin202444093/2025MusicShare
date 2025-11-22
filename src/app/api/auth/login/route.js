@@ -19,7 +19,7 @@ export async function POST(req) {
 
     // 3️⃣ 해당 이메일의 사용자 조회
     const [rows] = await db.query(
-      'SELECT id, name, email, password_hash FROM users WHERE email=?',
+      'SELECT id, name, email, password_hash, email_verified FROM users WHERE email=?',
       [email]
     )
 
@@ -34,7 +34,11 @@ export async function POST(req) {
     if (!ok)
       return NextResponse.json({ error: 'WRONG_PASSWORD' }, { status: 401 })
 
-    // 6️⃣ 로그인 성공 시 세션 토큰 발급 및 쿠키 설정
+    // 6️⃣ 이메일 인증 확인
+    if (!user.email_verified)
+      return NextResponse.json({ error: 'EMAIL_NOT_VERIFIED', message: '이메일 인증이 필요합니다. 이메일을 확인해주세요.' }, { status: 403 })
+
+    // 7️⃣ 로그인 성공 시 세션 토큰 발급 및 쿠키 설정
     const token = createSessionToken({ id: user.id, name: user.name, email: user.email })
     const res = NextResponse.json({
       ok: true,
@@ -43,7 +47,7 @@ export async function POST(req) {
     setSessionCookieOn(res, token)
     return res
   } catch (err) {
-    // 7️⃣ 예외 처리
+    // 8️⃣ 예외 처리
     console.error('로그인 오류:', err)
     return NextResponse.json({ error: 'SERVER' }, { status: 500 })
   }

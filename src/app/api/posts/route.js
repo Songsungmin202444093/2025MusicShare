@@ -12,16 +12,27 @@ export async function GET(request) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
     const offset = (page - 1) * limit
+    const q = searchParams.get('q') || ''
 
-    const [posts] = await db.query(`
+    let query = `
       SELECT 
         p.id, p.content, p.image_url, p.youtube_embed, p.likes_count, p.comments_count, p.created_at,
         u.name, u.id as user_id
       FROM posts p
       JOIN users u ON p.user_id = u.id
-      ORDER BY p.created_at DESC
-      LIMIT ? OFFSET ?
-    `, [limit, offset])
+    `
+    const params = []
+
+    if (q.trim()) {
+      query += ` WHERE p.content LIKE ? OR p.youtube_embed LIKE ?`
+      const searchTerm = `%${q.trim()}%`
+      params.push(searchTerm, searchTerm)
+    }
+
+    query += ` ORDER BY p.created_at DESC LIMIT ? OFFSET ?`
+    params.push(limit, offset)
+
+    const [posts] = await db.query(query, params)
 
     return NextResponse.json({ 
       posts,

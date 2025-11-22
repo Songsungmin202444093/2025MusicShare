@@ -28,7 +28,7 @@ export default function SearchBar() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="아티스트, 노래를 검색하세요…"
+        placeholder="아티스트, 노래, 셀럽, 게시글을 검색하세요…"
       />
     </form>
   )

@@ -34,7 +34,7 @@ export async function getTrack(id) {
     return rows[0] || null
 }
 
-// 검색용 (키워드로 title, artist, description 검색)
+// 검색용 (키워드로 title, artist 검색)
 export async function searchTracks(q) {
     const like = `%${q}%`
     const [rows] = await pool.query(`
@@ -44,9 +44,27 @@ export async function searchTracks(q) {
         FROM tracks t
         LEFT JOIN track_tags tt
             ON tt.track_id = t.id AND tt.tag IS NOT NULL
-        WHERE t.title LIKE ? OR t.artist LIKE ? OR t.description LIKE ?
+        WHERE t.title LIKE ? OR t.artist LIKE ?
         GROUP BY t.id
         ORDER BY t.id DESC
-    `, [like, like, like])
+    `, [like, like])
+    return rows
+}
+
+// 셀럽 검색 (셀럽 이름으로 카드 정보 반환)
+export async function searchCelebs(q) {
+    const like = `%${q}%`
+    const [rows] = await pool.query(`
+        SELECT
+            MIN(id) AS id,
+            cr.celeb_name AS name,
+            COUNT(*) AS count,
+            COALESCE(cl.likes, 0) AS likes
+        FROM celeb_recommendations cr
+        LEFT JOIN celeb_likes cl ON cl.celeb_name = cr.celeb_name
+        WHERE cr.celeb_name LIKE ?
+        GROUP BY cr.celeb_name
+        ORDER BY cr.celeb_name
+    `, [like])
     return rows
 }

@@ -9,6 +9,9 @@ const GENRES = ['발라드', '힙합', 'POP', '트로트', '댄스']
 export default function AuthPage() {
   // ✅ 로그인/회원가입 모드 구분 (true=로그인, false=회원가입)
   const [isLogin, setIsLogin] = useState(true)
+  
+  // ✅ 비밀번호 찾기 모드
+  const [isForgotPassword, setIsForgotPassword] = useState(false)
 
   // ✅ 폼 입력값 상태 관리
   const [formData, setFormData] = useState({
@@ -55,10 +58,40 @@ export default function AuthPage() {
     })
   }
 
+  // ✅ 비밀번호 찾기 처리
+  const handleForgotPassword = async (e) => {
+    e.preventDefault()
+    setMsg('')
+
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email })
+      })
+
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || '요청 실패')
+      }
+
+      setMsg('✅ ' + data.message)
+    } catch (error) {
+      setMsg('❌ ' + error.message)
+    }
+  }
+
   // ✅ 로그인 또는 회원가입 버튼 클릭 시 동작
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMsg('') // 기존 메시지 초기화
+
+    // 비밀번호 찾기 모드
+    if (isForgotPassword) {
+      handleForgotPassword(e)
+      return
+    }
 
     // 🔒 회원가입 시 비밀번호 확인 검증
     if (!isLogin && formData.password !== formData.confirmPassword) {
@@ -78,7 +111,14 @@ export default function AuthPage() {
           })
         })
   const j = await r.json()
-  if (!r.ok) throw new Error(j.error || '로그인 실패')
+  if (!r.ok) {
+    // 이메일 미인증 오류 처리
+    if (j.error === 'EMAIL_NOT_VERIFIED') {
+      setMsg('⚠️ ' + (j.message || '이메일 인증이 필요합니다.'))
+      return
+    }
+    throw new Error(j.error || '로그인 실패')
+  }
   setMsg('로그인 성공')
   // 로그인 후 홈으로 이동하여 헤더가 갱신되도록 처리
   window.location.href = '/'
@@ -100,8 +140,8 @@ export default function AuthPage() {
         })
   const j = await r.json()
   if (!r.ok) throw new Error(j.error || '회원가입 실패')
-  // 서버가 세션 쿠키를 이미 설정하므로 홈으로 이동하여 헤더 갱신
-  window.location.href = '/'
+  // 이메일 인증 필요 메시지 표시
+  setMsg('✅ ' + (j.message || '회원가입이 완료되었습니다. 이메일을 확인하여 인증을 완료해주세요.'))
       }
     } catch (err) {
       setMsg(err.message) // 에러 메시지 표시
@@ -113,24 +153,24 @@ export default function AuthPage() {
       <div className="auth-card">
         {/* ✅ 제목 영역 */}
         <div className="auth-header">
-          <h1>{isLogin ? '로그인' : '회원가입'}</h1>
-          <p>{isLogin ? 'MusicShare에 오신 것을 환영합니다' : '새 계정을 만들어보세요'}</p>
+          <h1>{isForgotPassword ? '비밀번호 찾기' : (isLogin ? '로그인' : '회원가입')}</h1>
+          <p>{isForgotPassword ? '이메일로 비밀번호 재설정 링크를 받으세요' : (isLogin ? 'MusicShare에 오신 것을 환영합니다' : '새 계정을 만들어보세요')}</p>
         </div>
 
         {/* ✅ 입력 폼 */}
         <form className="auth-form" onSubmit={handleSubmit}>
           {/* 회원가입일 때만 추가 필드 표시 */}
-          {!isLogin && (
+          {!isLogin && !isForgotPassword && (
             <>
-              {/* 이름 */}
+              {/* 닉네임 */}
               <div className="form-group">
-                <label htmlFor="name">이름</label>
+                <label htmlFor="name">닉네임</label>
                 <input
                   id="name"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="이름을 입력하세요"
+                  placeholder="닉네임을 입력하세요"
                   required
                 />
               </div>
@@ -187,7 +227,7 @@ export default function AuthPage() {
                   name="favoriteInfluencer"
                   value={formData.favoriteInfluencer}
                   onChange={handleChange}
-                  placeholder="이름을 입력하세요"
+                  placeholder="닉네임을 입력하세요"
                 />
               </div>
             </>
@@ -207,22 +247,24 @@ export default function AuthPage() {
             />
           </div>
 
-          {/* 비밀번호 */}
-          <div className="form-group">
-            <label htmlFor="password">비밀번호</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="비밀번호를 입력하세요"
-              required
-            />
-          </div>
+          {/* 비밀번호 (비밀번호 찾기가 아닐 때만 표시) */}
+          {!isForgotPassword && (
+            <div className="form-group">
+              <label htmlFor="password">비밀번호</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="비밀번호를 입력하세요"
+                required
+              />
+            </div>
+          )}
 
           {/* 회원가입 시 비밀번호 확인 */}
-          {!isLogin && (
+          {!isLogin && !isForgotPassword && (
             <div className="form-group">
               <label htmlFor="confirmPassword">비밀번호 확인</label>
               <input
@@ -239,18 +281,35 @@ export default function AuthPage() {
 
           {/* 제출 버튼 */}
           <button type="submit" className="auth-submit">
-            {isLogin ? '로그인' : '회원가입'}
+            {isForgotPassword ? '비밀번호 재설정 메일 받기' : (isLogin ? '로그인' : '회원가입')}
           </button>
         </form>
 
-        {/* ✅ 하단 링크(회원가입 ↔ 로그인 전환) */}
+        {/* ✅ 하단 링크(회원가입 ↔ 로그인 전환 & 비밀번호 찾기) */}
         <div className="auth-footer">
-          <p>
-            {isLogin ? '계정이 없으신가요?' : '이미 계정이 있으신가요?'}
-            <button className="auth-toggle" onClick={() => setIsLogin(!isLogin)}>
-              {isLogin ? '회원가입' : '로그인'}
-            </button>
-          </p>
+          {!isForgotPassword ? (
+            <>
+              <p>
+                {isLogin ? '계정이 없으신가요?' : '이미 계정이 있으신가요?'}
+                <button className="auth-toggle" onClick={() => { setIsLogin(!isLogin); setIsForgotPassword(false); }}>
+                  {isLogin ? '회원가입' : '로그인'}
+                </button>
+              </p>
+              {isLogin && (
+                <p>
+                  <button className="auth-toggle" onClick={() => setIsForgotPassword(true)}>
+                    비밀번호를 잊으셨나요?
+                  </button>
+                </p>
+              )}
+            </>
+          ) : (
+            <p>
+              <button className="auth-toggle" onClick={() => { setIsForgotPassword(false); setIsLogin(true); }}>
+                로그인으로 돌아가기
+              </button>
+            </p>
+          )}
           {/* 서버 응답 메시지 표시 */}
           {msg && <p style={{ marginTop: 8 }}>{msg}</p>}
         </div>
