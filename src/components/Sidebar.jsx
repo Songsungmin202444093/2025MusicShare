@@ -8,7 +8,6 @@ const menus = [
   { label: "최신 음악" },
   { label: "인기 음악" },
   { label: "오늘의 음악" },
-  { label: "AI 추천 음악" },
   { label: "장르 음악", genres: ["발라드", "힙합", "POP", "트로트", "댄스"] }
 ]
 

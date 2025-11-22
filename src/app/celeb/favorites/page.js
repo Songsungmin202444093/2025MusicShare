@@ -7,6 +7,7 @@ import { db } from '@/lib/db'
 import Sidebar from '../../../components/Sidebar'
 import TagCloud from '../../../components/TagCloud'
 import Image from 'next/image'
+import Link from 'next/link'
 
 async function getFavorites(userId) {
   const [rows] = await db.query(
@@ -47,8 +48,11 @@ export default async function FavoriteCelebPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {items.map(i => (
-              <div key={i.celeb_id} className="bg-white rounded-2xl shadow-lg overflow-hidden">
-
+              <Link
+                key={i.celeb_id}
+                href={`/celeb/${encodeURIComponent(i.celeb_name)}`}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition block"
+              >
                 <div className="relative w-full" style={{ aspectRatio:'1/1', minHeight:'260px' }}>
                   <Image
                     src={`/celeb/${encodeURIComponent(i.celeb_name)}.png`}
@@ -62,7 +66,7 @@ export default async function FavoriteCelebPage() {
                   <h2 className="text-lg font-semibold mb-3">{i.celeb_name}</h2>
                   <div className="text-gray-500 text-sm">{i.track_count}곡</div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

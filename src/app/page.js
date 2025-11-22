@@ -164,8 +164,7 @@ export default function Page() {
             </div>
           )}
         </div>
-      </section>
-      <aside className="right"><TagCloud /></aside>
+      </section>      
     </main>
   )
 }
