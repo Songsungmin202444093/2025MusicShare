@@ -39,12 +39,28 @@ export async function POST(req) {
         const userId = result.insertId
 
         // 7️⃣ 인증 이메일 전송
+        console.log(`[회원가입] 이메일 발송 시도: ${email}`)
         const emailResult = await sendVerificationEmail(email, verificationToken)
         
         if (!emailResult.success) {
-            console.error('이메일 전송 실패:', emailResult.error)
-            // 이메일 전송 실패 시에도 회원가입은 완료 (관리자가 수동 인증 가능)
+            console.error('❌ 이메일 전송 실패:', emailResult.error)
+            console.error('수신자 이메일:', email)
+            console.error('Gmail 설정:', {
+                user: process.env.GMAIL_USER,
+                hasPassword: !!process.env.GMAIL_PASS
+            })
+            
+            // 이메일 전송 실패 시 사용자에게 경고와 함께 회원가입 완료
+            return NextResponse.json({ 
+                ok: true, 
+                message: '회원가입은 완료되었으나 인증 이메일 발송에 실패했습니다. 관리자에게 문의하거나 잠시 후 다시 시도해주세요.',
+                requireVerification: true,
+                emailSendFailed: true,
+                error: emailResult.error
+            })
         }
+
+        console.log(`✅ 인증 이메일 발송 성공: ${email}`)
 
         // 8️⃣ 회원가입 완료 응답 (로그인은 이메일 인증 후에만 가능)
         return NextResponse.json({ 

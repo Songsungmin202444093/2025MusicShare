@@ -27,6 +27,8 @@ export default function AuthPage() {
 
   // ✅ 처리 결과 메시지 저장
   const [msg, setMsg] = useState('')
+  const [showResendButton, setShowResendButton] = useState(false)
+  const [resendEmail, setResendEmail] = useState('')
   const searchParams = useSearchParams()
 
   // 소셜 로그인 리다이렉트 결과 표시
@@ -56,6 +58,31 @@ export default function AuthPage() {
       else set.add(g)
       return { ...p, favoriteGenres: Array.from(set) }
     })
+  }
+
+  // ✅ 인증 이메일 재발송 처리
+  const handleResendVerification = async () => {
+    setMsg('이메일 재발송 중...')
+    setShowResendButton(false)
+
+    try {
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resendEmail })
+      })
+
+      const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.message || '재발송 실패')
+      }
+
+      setMsg('✅ ' + data.message)
+    } catch (error) {
+      setMsg('❌ ' + error.message)
+      setShowResendButton(true)
+    }
   }
 
   // ✅ 비밀번호 찾기 처리
@@ -115,11 +142,14 @@ export default function AuthPage() {
     // 이메일 미인증 오류 처리
     if (j.error === 'EMAIL_NOT_VERIFIED') {
       setMsg('⚠️ ' + (j.message || '이메일 인증이 필요합니다.'))
+      setShowResendButton(true)
+      setResendEmail(formData.email)
       return
     }
     throw new Error(j.error || '로그인 실패')
   }
   setMsg('로그인 성공')
+  setShowResendButton(false)
   // 로그인 후 홈으로 이동하여 헤더가 갱신되도록 처리
   window.location.href = '/'
       } else {
@@ -312,6 +342,25 @@ export default function AuthPage() {
           )}
           {/* 서버 응답 메시지 표시 */}
           {msg && <p style={{ marginTop: 8 }}>{msg}</p>}
+          {/* 인증 이메일 재발송 버튼 */}
+          {showResendButton && (
+            <button 
+              type="button"
+              className="auth-toggle" 
+              onClick={handleResendVerification}
+              style={{ 
+                marginTop: '10px', 
+                padding: '8px 16px', 
+                backgroundColor: '#3b82f6', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '5px',
+                cursor: 'pointer'
+              }}
+            >
+              인증 이메일 재발송
+            </button>
+          )}
         </div>
 
         {/* ✅ 소셜 로그인 버튼 */}

@@ -46,8 +46,14 @@ function getSenderEmail(recipientEmail) {
 export async function sendVerificationEmail(email, token) {
   const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/verify?token=${token}`
   
+  console.log('[이메일] 전송 준비 중...')
+  console.log('- 수신자:', email)
+  console.log('- BASE_URL:', process.env.NEXT_PUBLIC_BASE_URL)
+  
   const transporter = getTransporter(email)
   const senderEmail = getSenderEmail(email)
+  
+  console.log('- 발신자:', senderEmail)
   
   const mailOptions = {
     from: senderEmail,
@@ -77,10 +83,15 @@ export async function sendVerificationEmail(email, token) {
   }
 
   try {
-    await transporter.sendMail(mailOptions)
+    console.log('[이메일] SMTP 연결 시도...')
+    const info = await transporter.sendMail(mailOptions)
+    console.log('✅ 이메일 전송 성공:', info.messageId)
     return { success: true }
   } catch (error) {
-    console.error('Email send error:', error)
+    console.error('❌ 이메일 전송 실패 - 상세 정보:')
+    console.error('- Error code:', error.code)
+    console.error('- Error message:', error.message)
+    console.error('- Full error:', error)
     return { success: false, error: error.message }
   }
 }
