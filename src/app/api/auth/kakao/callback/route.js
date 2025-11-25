@@ -1,7 +1,7 @@
 export const runtime = 'nodejs'
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { createSessionToken, setSessionCookieOn } from '../../../../../../lib/auth'
+import { createSessionToken, setSessionCookieOn } from '@/lib/auth'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
