@@ -40,8 +40,13 @@ export async function GET(_req, context) {
   `, [celebName])
 
   // 좋아요 (없으면 0)
-  const likeRows = await q(
-    `SELECT likes FROM celeb_likes WHERE celeb_name=?`,
+    const likeRows = await q(
+    `
+    SELECT COUNT(*) AS likes
+    FROM celeb_like_users cu
+    JOIN celeb c ON cu.celeb_id = c.id
+    WHERE c.name = ?
+    `,
     [celebName]
   )
   const likes = likeRows[0]?.likes ?? 0

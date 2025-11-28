@@ -16,12 +16,10 @@ function thumbPath(name) {
 async function getCelebs() {
   return await q(`
     SELECT
-      MIN(id) AS id,
+      MIN(cr.id) AS id,
       cr.celeb_name AS name,
-      COUNT(*) AS count,
-      COALESCE(cl.likes, 0) AS likes
+      COUNT(*) AS count
     FROM celeb_recommendations cr
-    LEFT JOIN celeb_likes cl ON cl.celeb_name = cr.celeb_name
     GROUP BY cr.celeb_name
     ORDER BY cr.celeb_name
   `)
