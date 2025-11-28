@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useState } from "react"
 
 export default function PopularMusicList() {
@@ -148,72 +149,82 @@ export default function PopularMusicList() {
               e.currentTarget.style.background = "transparent"
               e.currentTarget.style.transform = "translateY(0)"
             }}
-            onClick={() => {
-              if (t.youtubeUrl) window.open(t.youtubeUrl, "_blank", "noopener,noreferrer")
-            }}
           >
-            <div
+            <Link
+              href={`/popular/${t.id}`}
               style={{
-                width: 26,
-                textAlign: "center",
-                fontWeight: 700,
-                fontSize: 15,
-                color: index < 3 ? "#ef4444" : "#4b5563"
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                flex: 1,
+                minWidth: 0,
+                textDecoration: "none",
+                color: "inherit"
               }}
             >
-              {index + 1}
-            </div>
-
-            {t.thumbnail && (
               <div
                 style={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 14,
-                  overflow: "hidden",
-                  flexShrink: 0,
-                  boxShadow: "0 6px 16px rgba(15,23,42,0.15)"
-                }}
-              >
-                <img
-                  src={t.thumbnail}
-                  alt={t.title}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    display: "block"
-                  }}
-                />
-              </div>
-            )}
-
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
-                style={{
-                  fontSize: 15,
+                  width: 26,
+                  textAlign: "center",
                   fontWeight: 700,
-                  color: "#111827",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  marginBottom: 4
+                  fontSize: 15,
+                  color: index < 3 ? "#ef4444" : "#4b5563"
                 }}
               >
-                {t.title}
+                {index + 1}
               </div>
-              <div
-                style={{
-                  fontSize: 13,
-                  color: "#6b7280",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis"
-                }}
-              >
-                {t.artist}
+
+              {t.thumbnail && (
+                <div
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 14,
+                    overflow: "hidden",
+                    flexShrink: 0,
+                    boxShadow: "0 6px 16px rgba(15,23,42,0.15)"
+                  }}
+                >
+                  <img
+                    src={t.thumbnail}
+                    alt={t.title}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      display: "block"
+                    }}
+                  />
+                </div>
+              )}
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: "#111827",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    marginBottom: 4
+                  }}
+                >
+                  {t.title}
+                </div>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "#6b7280",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis"
+                  }}
+                >
+                  {t.artist}
+                </div>
               </div>
-            </div>
+            </Link>
 
             <div
               style={{
@@ -222,6 +233,14 @@ export default function PopularMusicList() {
                 gap: 6,
                 fontSize: 12,
                 color: "#6b7280"
+              }}
+              onClick={() => {
+                if (t.youtubeUrl)
+                  window.open(
+                    t.youtubeUrl,
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
               }}
             >
               <span
