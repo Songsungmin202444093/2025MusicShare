@@ -1,0 +1,161 @@
+// 2025 Music Share Database ERD (English)
+// For dbdiagram.io
+
+Table users {
+  id int [pk, increment]
+  name varchar(80) [not null, note: 'User name']
+  gender enum('남','여') [note: 'Gender']
+  birth_date date [note: 'Birth date']
+  favorite_genres varchar(255) [note: 'Favorite genres']
+  favorite_influencer varchar(120) [note: 'Favorite influencer']
+  email varchar(191) [not null, unique, note: 'Email address']
+  email_verified tinyint(1) [default: 0, note: 'Email verification status']
+  verification_token varchar(255) [note: 'Verification token']
+  token_expires_at datetime [note: 'Token expiration time']
+  password_hash varchar(255) [not null, note: 'Password hash']
+  created_at datetime [default: `CURRENT_TIMESTAMP`, note: 'Created timestamp']
+  
+  indexes {
+    email [unique]
+  }
+}
+
+Table celeb {
+  id int [pk, increment]
+  slug varchar(255) [unique, note: 'URL slug']
+  name varchar(100) [not null, note: 'Celebrity name']
+  cover varchar(255) [note: 'Cover image']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    slug [unique]
+  }
+}
+
+Table celeb_like_users {
+  id int [pk, increment]
+  user_id int [not null, ref: > users.id, note: 'User ID']
+  celeb_id int [not null, ref: > celeb.id, note: 'Celebrity ID']
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    (user_id, celeb_id) [unique, name: 'uq_user_celeb']
+    celeb_id [name: 'idx_celeb']
+  }
+}
+
+Table celeb_likes {
+  celeb_name varchar(50) [pk, note: 'Celebrity name (legacy)']
+  likes int [not null, default: 0, note: 'Total likes count']
+}
+
+Table celeb_recommendations {
+  id int [pk, increment]
+  celeb_name varchar(50) [note: 'Celebrity name (legacy)']
+  song_title varchar(100) [note: 'Song title']
+  artist varchar(100) [note: 'Artist name']
+  comment text [note: 'Recommendation comment']
+  source varchar(100) [note: 'Source']
+  youtube varchar(255) [note: 'YouTube URL']
+}
+
+Table track {
+  id int [pk, increment]
+  celeb_id int [not null, ref: > celeb.id, note: 'Celebrity ID']
+  title varchar(200) [not null, note: 'Track title']
+  artist varchar(120) [not null, note: 'Artist name']
+  album varchar(200) [note: 'Album name']
+  note text [note: 'Note']
+  source varchar(200) [note: 'Source']
+  youtube varchar(300) [note: 'YouTube URL']
+  thumb varchar(300) [note: 'Thumbnail URL']
+  likes int [default: 0, note: 'Likes count']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    celeb_id [name: 'idx_track_celeb']
+  }
+}
+
+Table tracks {
+  id int [pk, increment]
+  title varchar(120) [not null, note: 'Track title']
+  artist varchar(80) [not null, note: 'Artist name']
+  views int [not null, default: 0, note: 'View count']
+  likes int [not null, default: 0, note: 'Likes count']
+  youtubeId varchar(64) [not null, note: 'YouTube video ID']
+  thumb varchar(255) [not null, note: 'Thumbnail URL']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table track_likes {
+  id int [pk, increment]
+  user_id int [not null, ref: > users.id]
+  track_id int [not null, ref: > track.id]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    (user_id, track_id) [unique, name: 'uq_user_track']
+    track_id [name: 'idx_track']
+  }
+}
+
+Table track_tags {
+  id int [pk, increment]
+  track_id int [not null, ref: > tracks.id]
+  tag varchar(40) [not null, note: 'Tag']
+  
+  indexes {
+    track_id [name: 'idx_track_tags']
+  }
+}
+
+Table posts {
+  id int [pk, increment]
+  user_id int [not null, ref: > users.id, note: 'Author ID']
+  content text [note: 'Post content']
+  image_url varchar(500) [note: 'Image URL']
+  youtube_embed text [note: 'YouTube embed code']
+  likes_count int [default: 0, note: 'Likes count']
+  comments_count int [default: 0, note: 'Comments count']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Updated timestamp']
+  
+  indexes {
+    created_at [name: 'idx_posts_created_at']
+    user_id [name: 'idx_posts_user_id']
+  }
+}
+
+Table post_likes {
+  id int [pk, increment]
+  post_id int [not null, ref: > posts.id]
+  user_id int [not null, ref: > users.id]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    (post_id, user_id) [unique, name: 'unique_post_user_like']
+    post_id [name: 'idx_post_likes_post_id']
+    user_id [name: 'idx_post_likes_user_id']
+  }
+}
+
+Table post_comments {
+  id int [pk, increment]
+  post_id int [not null, ref: > posts.id]
+  user_id int [not null, ref: > users.id]
+  content text [not null, note: 'Comment content']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`, note: 'Updated timestamp']
+  
+  indexes {
+    post_id [name: 'idx_comments_post_id']
+    user_id [name: 'idx_comments_user_id']
+    created_at [name: 'idx_comments_created_at']
+  }
+}
+
+// Notes:
+// - celeb_likes and celeb_recommendations are legacy tables using celeb_name (VARCHAR)
+// - track table uses celeb_id (foreign key) for proper normalization
+// - tracks table is separate from track (different purpose)

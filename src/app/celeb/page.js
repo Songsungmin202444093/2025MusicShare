@@ -55,12 +55,13 @@ export default async function CelebPage() {
                 href={`/celeb/${encodeURIComponent(c.name)}`}
                 className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition"
               >
-                <div className="relative w-full" style={{ aspectRatio: "4 / 3" }}>
+                <div className="relative w-full bg-gray-100" style={{ aspectRatio: "4 / 3" }}>
                   <Image
                     src={thumbPath(c.name)}
                     alt={c.name}
                     fill
                     className="object-cover"
+                    unoptimized
                   />
                 </div>
 
