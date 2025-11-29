@@ -4,10 +4,8 @@ import { useState } from "react"
 
 const menus = [
   { label: "유명인 추천 음악", href: "/celeb" },
-  { label: "최신 음악", href: "/latest" },
-  { label: "인기 음악", href: "/popular" },
-  { label: "오늘의 음악", href: "/today" },
-  { label: "장르 음악", genres: ["발라드", "힙합", "POP", "트로트", "댄스"] }
+  { label: "오늘의 음악", href: "/latest" },
+  { label: "인기 음악", href: "/popular" }
 ]
 
 export default function Sidebar() {
