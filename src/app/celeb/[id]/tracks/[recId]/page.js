@@ -29,7 +29,7 @@ function ytId(u = '') {
 }
 
 export default async function CelebTrackDetailPage({ params }) {
-  const { id, recId } = params
+  const { id, recId } = await params
 
   const url = await abs(`/api/celeb/${id}`)
   const res = await fetch(url, { cache: 'no-store' })

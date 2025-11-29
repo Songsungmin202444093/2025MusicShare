@@ -53,18 +53,24 @@ export async function searchTracks(q) {
 
 // 셀럽 검색 (셀럽 이름으로 카드 정보 반환)
 export async function searchCelebs(q) {
-    const like = `%${q}%`
-    const [rows] = await pool.query(`
-        SELECT
-            MIN(id) AS id,
-            cr.celeb_name AS name,
-            COUNT(*) AS count,
-            COALESCE(cl.likes, 0) AS likes
-        FROM celeb_recommendations cr
-        LEFT JOIN celeb_likes cl ON cl.celeb_name = cr.celeb_name
-        WHERE cr.celeb_name LIKE ?
-        GROUP BY cr.celeb_name
-        ORDER BY cr.celeb_name
-    `, [like])
-    return rows
+  const like = `%${q}%`
+  const [rows] = await pool.query(`
+    SELECT
+      MIN(cr.id) AS id,
+      cr.celeb_name AS name,
+      COUNT(*) AS count,
+      COALESCE((
+        SELECT COUNT(*)
+        FROM celeb_like_users clu
+        JOIN celeb c ON clu.celeb_id = c.id
+        WHERE c.name = cr.celeb_name
+      ), 0) AS likes
+    FROM celeb_recommendations cr
+    WHERE cr.celeb_name LIKE ?
+    GROUP BY cr.celeb_name
+    ORDER BY cr.celeb_name
+  `, [like])
+
+  return rows
 }
+
