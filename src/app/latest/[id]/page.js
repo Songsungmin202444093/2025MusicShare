@@ -81,11 +81,6 @@ async function LatestDetail({ id }) {
                 </p>
               </>
             )}
-            {track.source && (
-              <p className="text-sm text-gray-500 mt-4">
-                출처: {track.source}
-              </p>
-            )}
           </div>
         </div>
       </section>
