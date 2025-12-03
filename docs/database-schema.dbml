@@ -67,6 +67,7 @@ Table "셀럽" as celeb {
   slug varchar(50) [not null, unique, note: 'URL 슬러그']
   name varchar(100) [not null, note: '셀럽 이름']
   cover varchar(255) [note: '커버 이미지']
+  likes_count int [default: 0, note: 'precomputed 좋아요 수']
   created_at timestamp [default: `CURRENT_TIMESTAMP`]
   
   indexes {
